@@ -70,14 +70,12 @@ public:
     iterator end();
     
 private:
-    bool isEnd(char a, char left = '\"');
+    bool isEnd(char a, char left = ' ');
     void skipSpace(std::string & s, int & pos);
     void _save(std::ofstream& ofs, element* root, int layer = 0);
     static void _clear(element* &root);
-
+    void preTask(std::string& bufstr);
 };
-
-
 
 
 #endif

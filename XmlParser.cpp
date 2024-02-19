@@ -1,5 +1,4 @@
 #include "XmlParser.h"
-
 XmlParser::XmlParser()
 {
     this->rootElement = nullptr;
@@ -57,8 +56,8 @@ void XmlParser::element::eraseChild(std::string tagName, unsigned nth)
             this->childElements.erase(childElements.begin() + i);
         }
     }
-    
 }
+
 void XmlParser::element::eraseChild(unsigned nth)
 {
     _clear(this->childElements[nth]);
@@ -95,6 +94,8 @@ void XmlParser::loadXml(std::string path)
     delete[] buf;
     ifs.close();
 
+    this->preTask(bufstr);
+    length = bufstr.length();
     bool isProperties = true;
     int pos = 0, mark = 0;
     std::stack<element *> dom;
@@ -219,6 +220,17 @@ void XmlParser::_clear(element *&root)
     }
 }
 
+void XmlParser::preTask(std::string &bufstr)
+{
+    int i = 0, j = 0;
+    while ((i = bufstr.find("<!--", j)) != -1)
+    {
+        j = bufstr.find("-->", i) + 3;
+        bufstr.erase(i, j - i);
+        j = i;
+    }
+}
+
 void XmlParser::save()
 {
     saveAs(_path);
@@ -271,7 +283,8 @@ void XmlParser::saveAs(std::string path)
 
 void XmlParser::_save(std::ofstream &ofs, element *root, int layer)
 {
-    ofs << "\n" << std::string(layer, '\t') << "<" << root->tagName;
+    ofs << "\n"
+        << std::string(layer, '\t') << "<" << root->tagName;
     if (!(root->attributes.empty()))
     {
         for (std::map<std::string, std::string>::iterator attr = root->attributes.begin(); attr != root->attributes.end(); attr++)
@@ -310,9 +323,9 @@ std::string &XmlParser::path()
 
 bool XmlParser::isEnd(char a, char left)
 {
-    if (left == '\'')
-        return a == '\'';
-    return a == '>' || a == ' ' || a == '\"' || a == '\t' || a == '\n';
+    if (left != ' ')
+        return a == left;
+    return a == '>' || a == ' ' || a == '\"' || a == '\t' || a == '\n' || a == '\'';
 }
 
 void XmlParser::skipSpace(std::string &s, int &pos)
