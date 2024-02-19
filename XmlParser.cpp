@@ -289,7 +289,9 @@ void XmlParser::_save(std::ofstream &ofs, element *root, int layer)
     {
         for (std::map<std::string, std::string>::iterator attr = root->attributes.begin(); attr != root->attributes.end(); attr++)
         {
-            ofs << ' ' << attr->first << "=\"" << attr->second << '\"';
+            if (attr->second.find("\"") != -1)
+                ofs << ' ' << attr->first << "='" << attr->second << '\'';
+            else ofs << ' ' << attr->first << "=\"" << attr->second << '"';
         }
     }
     ofs << '>' << root->innerText;
