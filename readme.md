@@ -222,19 +222,29 @@ XmlParser::iterator aa = setupCommands->childElement("aa");
 cout << (aa == xml.end());	//1
 ```
 
-6. 获取所有子元素的标签名 `iterator->keys()`
+6. 通过`iterator.begin()` `iterator.end()` 与迭代器自增遍历子元素（推荐）
+
+```c++
+for (XmlParser::iterator item = note.begin(); item != note.end(); item++)
+{
+    string str = item->tagName;
+    cout << str << endl;
+}
+```
+
+7. 获取所有子元素的标签名 `iterator->keys()`
 
    > __只读__访问，返回`vector<string>`对象，包含该节点下的所有子节点的标签名
 
 ```xml
 <note type="test">
-	<name>C/C++ Runner: Debug Session</name>
-	<request>launch</request>
-	<setupCommands>
-		<description>Enable pretty-printing for gdb</description>
-		<text>-enable-pretty-printing</text>
-		<ignoreFailures>true</ignoreFailures>
-	</setupCommands>
+    <name>C/C++ Runner: Debug Session</name>
+    <request>launch</request>
+    <setupCommands>
+        <description>Enable pretty-printing for gdb</description>
+        <text>-enable-pretty-printing</text>
+        <ignoreFailures>true</ignoreFailures>
+    </setupCommands>
 </note>
 ```
 

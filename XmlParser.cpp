@@ -74,6 +74,15 @@ std::vector<std::string> XmlParser::element::keys()
     }
     return arr;
 }
+bool XmlParser::element::isSelfClose()
+{
+    return selfClose;
+}
+XmlParser::element::element()
+{
+    this->selfClose = false;
+}
+
 void XmlParser::loadXml()
 {
     loadXml(_path);
@@ -142,6 +151,7 @@ void XmlParser::loadXml(std::string path)
         pos++;
         if (bufstr[pos] == '/')
         {
+            pop:;
             while (pos < length && bufstr[pos] != '<')
             {
                 pos++;
@@ -164,11 +174,11 @@ void XmlParser::loadXml(std::string path)
             while (bufstr[pos] != '>')
             {
                 mark = pos;
-                mark = pos;
                 while (bufstr[pos] != '=' && pos < bufstr.size())
                     pos++;
                 std::string attr = bufstr.substr(mark, pos - mark);
                 pos++;
+                skipSpace(bufstr, pos);
                 char valStartSymbol = bufstr[pos];
                 pos++;
                 mark = pos;
@@ -178,6 +188,12 @@ void XmlParser::loadXml(std::string path)
                 newelem->attributes[attr] = value;
                 pos++;
                 skipSpace(bufstr, pos);
+
+                //selfclose
+                if(bufstr.substr(pos, 2) == "/>"){
+                    newelem->selfClose = true;
+                    goto pop;
+                }
             }
             skipSpace(bufstr, ++pos);
             if (bufstr[pos] == '<')
@@ -295,6 +311,10 @@ void XmlParser::_save(std::ofstream &ofs, element *root, int layer)
             else
                 ofs << ' ' << attr->first << "=\"" << attr->second << '"';
         }
+    }
+    if(root->isSelfClose()){
+        ofs << " />";
+        return;
     }
     ofs << '>' << root->innerText;
     if (!(root->childElements.empty()))

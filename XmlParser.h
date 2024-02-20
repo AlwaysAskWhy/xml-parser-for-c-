@@ -26,7 +26,10 @@ private:
         void eraseChild(std::string tagName, unsigned nth = 0);
         void eraseChild(unsigned nth);
         std::vector<std::string> keys();
+        bool isSelfClose();
     private:
+        element();
+        bool selfClose;
         std::map<std::string, std::string> attributes;
         std::vector<element*> childElements;
         friend class XmlParser;
