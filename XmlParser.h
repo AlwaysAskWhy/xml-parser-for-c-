@@ -31,7 +31,7 @@ private:
         std::vector<element*> childElements;
         friend class XmlParser;
     };
-//<u>__</u>
+
     std::string _path;
     element* rootElement;
     std::map<std::string, std::map<std::string, std::string>> declarations;
@@ -56,14 +56,20 @@ public:
     private:
         element* p;
         friend class XmlParser;
-        iterator(element* p);
+        int index;
+        iterator* parent;
+        iterator(element* p, iterator* parent = nullptr);
     public:
         ~iterator();
         element* operator->();
         iterator operator[](int nth);
         iterator operator[](std::string key);
-        bool operator==(iterator& other);
-        bool operator!=(iterator& other);
+        bool operator==(iterator other);
+        bool operator!=(iterator other);
+        iterator operator++(int);
+
+        iterator end();
+        iterator begin();
     };
     
     iterator root();

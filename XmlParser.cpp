@@ -1,4 +1,5 @@
 #include "XmlParser.h"
+#include <iostream>
 XmlParser::XmlParser()
 {
     this->rootElement = nullptr;
@@ -291,7 +292,8 @@ void XmlParser::_save(std::ofstream &ofs, element *root, int layer)
         {
             if (attr->second.find("\"") != -1)
                 ofs << ' ' << attr->first << "='" << attr->second << '\'';
-            else ofs << ' ' << attr->first << "=\"" << attr->second << '"';
+            else
+                ofs << ' ' << attr->first << "=\"" << attr->second << '"';
         }
     }
     ofs << '>' << root->innerText;
@@ -336,9 +338,11 @@ void XmlParser::skipSpace(std::string &s, int &pos)
         pos++;
 }
 
-XmlParser::iterator::iterator(element *p)
+XmlParser::iterator::iterator(element *p, iterator *parent)
 {
     this->p = p;
+    this->parent = parent;
+    this->index = 0;
 }
 
 XmlParser::iterator::~iterator()
@@ -366,13 +370,42 @@ XmlParser::iterator XmlParser::iterator::operator[](int nth)
     return iterator(p->childElements[nth]);
 }
 
-bool XmlParser::iterator::operator==(iterator &other)
+bool XmlParser::iterator::operator==(iterator other)
 {
     return this->p == other.p;
 }
-bool XmlParser::iterator::operator!=(iterator &other)
+bool XmlParser::iterator::operator!=(iterator other)
 {
     return this->p != other.p;
+}
+
+XmlParser::iterator XmlParser::iterator::operator++(int)
+{
+    if (parent && parent->index < parent->p->childElements.size())
+    {
+        element *tmp = this->p;
+        if (parent->index == parent->p->childElements.size() - 1)
+        {
+            this->p = nullptr;
+            parent->index++;
+        }
+        else
+            this->p = parent->p->childElements.at(++parent->index);
+        return iterator(tmp);
+    }
+    this->p = nullptr;
+    return this->end();
+}
+
+XmlParser::iterator XmlParser::iterator::end()
+{
+    return iterator(nullptr);
+}
+
+XmlParser::iterator XmlParser::iterator::begin()
+{
+    index = 0;
+    return iterator(this->p->childElements.front(), this);
 }
 
 XmlParser::iterator XmlParser::root()
